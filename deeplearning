@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴런 마스터 - 딥러닝 학습 게임</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #764ba2;
+            margin-bottom: 25px;
+            font-size: 1.2em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 15px 30px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-area {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+
+        .level-info {
+            text-align: center;
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .question-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .neural-network {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .layer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .neuron {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .neuron:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .neuron.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            animation: pulse 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            animation: bounce 0.5s;
+        }
+
+        .option-btn.wrong {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            animation: shake 0.5s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.correct {
+            background: #38ef7d;
+            color: white;
+        }
+
+        .feedback.wrong {
+            background: #f45c43;
+            color: white;
+        }
+
+        .next-btn {
+            display: none;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .next-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .leaderboard {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .leader-item {
+            background: white;
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .medal {
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 뉴런 마스터</h1>
+        <div class="subtitle">딥러닝 원리를 배우는 즐거운 모험!</div>
+
+        <div class="stats">
+            <div class="stat-box">⭐ 레벨: <span id="level">1</span></div>
+            <div class="stat-box">🏆 점수: <span id="score">0</span></div>
+            <div class="stat-box">🔥 연속 정답: <span id="streak">0</span></div>
+            <div class="stat-box">💎 보석: <span id="gems">0</span></div>
+        </div>
+
+        <div class="game-area">
+            <div class="level-info" id="levelInfo">레벨 1: 뉴런이 뭐예요?</div>
+            
+            <div class="question-box">
+                <div class="question-text" id="questionText"></div>
+                <div id="neuralNetwork"></div>
+                <div class="options" id="options"></div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="nextBtn" onclick="nextQuestion()">다음 문제 ➡️</button>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <h3>🏅 최고 기록</h3>
+            <div id="leaderboardList"></div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                level: 1,
+                levelName: "뉴런이 뭐예요?",
+                question: "딥러닝의 가장 기본 단위인 '뉴런'은 무엇을 모방한 것일까요?",
+                options: ["사람의 뇌 신경세포", "컴퓨터 칩", "전구", "배터리"],
+                correct: 0,
+                explanation: "정답! 뉴런은 사람의 뇌에 있는 신경세포를 모방했어요. 뇌처럼 정보를 받아서 처리하고 다음으로 전달해요! 🧠✨"
+            },
+            {
+                level: 1,
+                levelName: "뉴런의 역할",
+                question: "뉴런은 어떤 일을 할까요?",
+                options: ["정보를 저장만 해요", "정보를 받고, 계산하고, 전달해요", "전기만 만들어요", "그림을 그려요"],
+                correct: 1,
+                explanation: "맞아요! 뉴런은 정보를 받아서 계산한 다음 다음 뉴런으로 전달해요. 마치 친구들끼리 메시지를 주고받는 것처럼요! 📨"
+            },
+            {
+                level: 2,
+                levelName: "층이 여러개!",
+                question: "딥러닝에서 '층(Layer)'이 여러 개 있는 이유는?",
+                options: ["보기 좋으려고", "더 복잡한 문제를 풀기 위해", "속도를 느리게 하려고", "그냥 많은게 좋아서"],
+                correct: 1,
+                explanation: "정답이에요! 층이 많을수록 더 어려운 문제를 풀 수 있어요. 첫 층은 간단한 것을, 다음 층은 더 복잡한 것을 배워요! 🎯"
+            },
+            {
+                level: 2,
+                levelName: "입력과 출력",
+                question: "강아지 사진을 보고 '강아지'라고 맞추려면, 사진은 어디로 들어갈까요?",
+                options: ["출력층", "입력층", "중간층", "아무데나"],
+                correct: 1,
+                explanation: "잘했어요! 사진은 입력층으로 들어가요. 그리고 여러 층을 거쳐서 마지막에 '강아지'라는 답이 나와요! 🐕"
+            },
+            {
+                level: 3,
+                levelName: "학습하기",
+                question: "딥러닝 모델이 '학습'한다는 것은 무슨 뜻일까요?",
+                options: ["책을 읽어요", "많은 예시를 보고 규칙을 찾아요", "선생님 말을 들어요", "계속 커져요"],
+                correct: 1,
+                explanation: "정확해요! AI는 많은 예시(데이터)를 보면서 패턴과 규칙을 스스로 찾아내요. 사람이 연습해서 실력이 늘듯이요! 📚"
+            },
+            {
+                level: 3,
+                levelName: "가중치의 비밀",
+                question: "'가중치(Weight)'는 뉴런 사이의 연결에서 무엇을 나타낼까요?",
+                options: ["색깔", "연결의 중요도", "크기", "이름"],
+                correct: 1,
+                explanation: "훌륭해요! 가중치는 각 연결이 얼마나 중요한지 나타내요. 학습하면서 이 가중치가 조금씩 변해요! ⚖️"
+            },
+            {
+                level: 4,
+                levelName: "활성화 함수",
+                question: "활성화 함수는 왜 필요할까요?",
+                options: ["뉴런을 켜고 끌 수 있게", "색을 바꾸려고", "빠르게 하려고", "이름을 짓기 위해"],
+                correct: 0,
+                explanation: "정답! 활성화 함수는 뉴런을 '켜거나' '끄는' 역할을 해요. 중요한 신호만 다음으로 전달하는 거예요! 💡"
+            },
+            {
+                level: 4,
+                levelName: "데이터가 중요해요",
+                question: "AI가 고양이를 잘 구별하려면 무엇이 필요할까요?",
+                options: ["많은 고양이 사진", "고양이 인형", "고양이 소리", "고양이 이름"],
+                correct: 0,
+                explanation: "맞아요! AI는 많은 예시 데이터로 학습해요. 다양한 고양이 사진을 많이 보면 고양이를 잘 알아볼 수 있어요! 🐱"
+            },
+            {
+                level: 5,
+                levelName: "예측과 판단",
+                question: "훈련된 AI 모델이 새로운 사진을 보고 답을 내는 것을 뭐라고 할까요?",
+                options: ["예측(추론)", "공부", "저장", "삭제"],
+                correct: 0,
+                explanation: "완벽해요! 학습이 끝난 후 새로운 데이터로 답을 내는 것을 '예측' 또는 '추론'이라고 해요! 🎯"
+            },
+            {
+                level: 5,
+                levelName: "딥러닝 마스터!",
+                question: "딥러닝이 '딥(Deep)'이라고 불리는 이유는?",
+                options: ["깊은 바다 같아서", "여러 층이 깊게 쌓여서", "어려워서", "오래 걸려서"],
+                correct: 1,
+                explanation: "완전 정답! 신경망의 층이 여러 겹 깊게 쌓여 있어서 '딥(깊은) 러닝'이라고 불러요! 🎊 축하해요, 딥러닝 마스터!"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let level = 1;
+        let streak = 0;
+        let gems = 0;
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+
+        function updateStats() {
+            document.getElementById('level').textContent = level;
+            document.getElementById('score').textContent = score;
+            document.getElementById('streak').textContent = streak;
+            document.getElementById('gems').textContent = gems;
+        }
+
+        function showNeuralNetwork() {
+            const container = document.getElementById('neuralNetwork');
+            const layerSizes = [3, 4, 3, 2];
+            
+            container.innerHTML = '';
+            container.className = 'neural-network';
+            
+            for (let i = 0; i < layerSizes.length; i++) {
+                const layer = document.createElement('div');
+                layer.className = 'layer';
+                
+                for (let j = 0; j < layerSizes[i]; j++) {
+                    const neuron = document.createElement('div');
+                    neuron.className = 'neuron';
+                    neuron.textContent = '⚡';
+                    neuron.onclick = () => {
+                        neuron.classList.add('active');
+                        setTimeout(() => neuron.classList.remove('active'), 500);
+                    };
+                    layer.appendChild(neuron);
+                }
+                
+                container.appendChild(layer);
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= questions.length) {
+                showGameComplete();
+                return;
+            }
+
+            const q = questions[currentQuestion];
+            level = q.level;
+            
+            document.getElementById('levelInfo').textContent = `레벨 ${q.level}: ${q.levelName}`;
+            document.getElementById('questionText').textContent = q.question;
+            
+            showNeuralNetwork();
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkAnswer(index, q.correct, q.explanation, btn);
+                optionsContainer.appendChild(btn);
+            });
+            
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            updateStats();
+        }
+
+        function checkAnswer(selected, correct, explanation, btn) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            
+            const feedback = document.getElementById('feedback');
+            
+            if (selected === correct) {
+                btn.classList.add('correct');
+                feedback.className = 'feedback correct show';
+                feedback.textContent = '🎉 ' + explanation;
+                
+                const points = (streak + 1) * 10;
+                score += points;
+                streak++;
+                gems += Math.floor(streak / 2);
+                
+                setTimeout(() => {
+                    const neurons = document.querySelectorAll('.neuron');
+                    neurons.forEach((n, i) => {
+                        setTimeout(() => n.classList.add('active'), i * 100);
+                        setTimeout(() => n.classList.remove('active'), i * 100 + 500);
+                    });
+                }, 300);
+            } else {
+                btn.classList.add('wrong');
+                allBtns[correct].classList.add('correct');
+                feedback.className = 'feedback wrong show';
+                feedback.textContent = '💪 다시 도전! ' + explanation;
+                streak = 0;
+            }
+            
+            updateStats();
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            loadQuestion();
+        }
+
+        function showGameComplete() {
+            document.querySelector('.game-area').innerHTML = `
+                <div style="text-align: center; padding: 50px;">
+                    <h2 style="font-size: 3em; margin-bottom: 20px;">🎊 축하합니다! 🎊</h2>
+                    <p style="font-size: 1.5em; margin-bottom: 30px;">딥러닝 마스터가 되었어요!</p>
+                    <div style="background: white; padding: 30px; border-radius: 20px; margin: 20px 0;">
+                        <p style="font-size: 2em; margin: 10px 0;">최종 점수: ${score}점</p>
+                        <p style="font-size: 1.5em; margin: 10px 0;">획득 보석: ${gems}개 💎</p>
+                    </div>
+                    <button onclick="location.reload()" style="padding: 20px 40px; font-size: 1.3em; border: none; border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; cursor: pointer; font-weight: bold; margin-top: 20px;">다시 도전하기 🔄</button>
+                </div>
+            `;
+            
+            saveScore();
+            updateLeaderboard();
+        }
+
+        function saveScore() {
+            leaderboard.push({ score, gems, date: new Date().toLocaleDateString() });
+            leaderboard.sort((a, b) => b.score - a.score);
+            leaderboard = leaderboard.slice(0, 5);
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+        }
+
+        function updateLeaderboard() {
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            
+            const medals = ['🥇', '🥈', '🥉', '🏅', '🏅'];
+            
+            leaderboard.forEach((entry, index) => {
+                const item = document.createElement('div');
+                item.className = 'leader-item';
+                item.innerHTML = `
+                    <span><span class="medal">${medals[index]}</span> ${entry.score}점</span>
+                    <span>${entry.gems}💎 | ${entry.date}</span>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        loadQuestion();
+        updateLeaderboard();
+    </script>
+</body>
+</html>

@@ -5,3 +5,221 @@
   <a href="seating.html">자리배치</a>
   
 </html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다윤의 웹페이지</title>
+  <style>
+    /* 기본 스타일 초기화 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f0c29; /* 깊은 밤하늘 배경색 */
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* --- 리퀴드 글래스(Liquid Glass) 배경 애니메이션 --- */
+    /* 움직이는 빛나는 블롭(blob)들을 만들어 액체 같은 느낌을 줍니다. */
+    .liquid-shape {
+      position: absolute;
+      filter: blur(100px);
+      z-index: 0;
+      animation: move 15s infinite alternate;
+      opacity: 0.6;
+    }
+
+    /* 첫 번째 블롭: 분홍색/보라색 그라데이션 */
+    .shape-1 {
+      top: 20%;
+      left: 20%;
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    }
+
+    /* 두 번째 블롭: 파란색/청록색 그라데이션 */
+    .shape-2 {
+      bottom: 20%;
+      right: 20%;
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      border-radius: 60% 40% 30% 70% / 50% 40% 50% 60%;
+      animation-duration: 20s; /* 다른 속도로 움직이게 설정 */
+      animation-direction: alternate-reverse; /* 반대 방향으로 움직이게 설정 */
+    }
+
+    /* 세 번째 블롭: 노란색/주황색 그라데이션 */
+    .shape-3 {
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      background: linear-gradient(to right, #f7971e, #ffd200);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation-duration: 25s;
+    }
+
+    /* 블롭 애니메이션 정의 */
+    @keyframes move {
+      0% {
+        transform: translate(0, 0) rotate(0deg) scale(1);
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      }
+      33% {
+        transform: translate(100px, -50px) rotate(60deg) scale(1.1);
+        border-radius: 70% 30% 50% 50% / 30% 40% 60% 50%;
+      }
+      66% {
+        transform: translate(-50px, 100px) rotate(120deg) scale(0.9);
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+      }
+      100% {
+        transform: translate(0, 0) rotate(180deg) scale(1);
+        border-radius: 60% 40% 30% 70% / 50% 40% 50% 60%;
+      }
+    }
+
+    /* --- 글래스모피즘(Glassmorphism) 카드 --- */
+    .glass-card {
+      position: relative;
+      z-index: 1; /* 배경 위에 떠 있도록 설정 */
+      background: rgba(255, 255, 255, 0.05); /* 반투명한 흰색 배경 */
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* 부드러운 그림자 */
+      backdrop-filter: blur(16px); /* 배경을 흐리게 만드는 핵심 효과 */
+      -webkit-backdrop-filter: blur(16px); /* 사파리 브라우저 호환성 */
+      border-radius: 20px; /* 둥근 모서리 */
+      border: 1px solid rgba(255, 255, 255, 0.18); /* 얇고 반투명한 테두리 */
+      padding: 4rem 3rem;
+      text-align: center;
+      color: #ffffff;
+      width: 90%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+    
+    /* 카드에 미세한 빛 반사 효과 추가 */
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 20px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.01) 100%);
+        pointer-events: none;
+        z-index: -1;
+    }
+
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* 링크 버튼 스타일 */
+    .link-button {
+      display: inline-block;
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      padding: 1.2rem 2.5rem;
+      background: rgba(255, 255, 255, 0.1); /* 버튼 자체에도 글래스 효과 적용 */
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 마우스 호버 효과 */
+    .link-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      transform: translateY(-3px) scale(1.02);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+    
+    /* 클릭 효과 */
+    .link-button:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    /* 버튼 내부의 빛나는 효과 */
+    .link-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent
+        );
+        transition: all 0.5s;
+    }
+    
+    .link-button:hover::before {
+        left: 100%;
+    }
+
+    /* 링크 컨테이너 */
+    .links-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- 리퀴드 글래스 배경 요소들 -->
+  <div class="liquid-shape shape-1"></div>
+  <div class="liquid-shape shape-2"></div>
+  <div class="liquid-shape shape-3"></div>
+
+  <!-- 메인 컨텐츠가 담긴 글래스모피즘 카드 -->
+  <main class="glass-card">
+    <h1>✨ 다윤의 웹페이지</h1>
+    <nav class="links-container">
+      <a href="deeplearning.html" class="link-button">🧠 딥러닝 게임</a>
+      <a href="seating.html" class="link-button">🪑 자리 배치</a>
+    </nav>
+  </main>
+
+  <!-- Pretendard 웹폰트 (CDN) -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+
+</body>
+</html>
